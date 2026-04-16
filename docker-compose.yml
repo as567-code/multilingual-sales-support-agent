@@ -1,0 +1,2 @@
+# Implemented in Stage 8 — see PRD §6.
+# Single `api` service, env from .env, healthcheck on /healthz, volume mount for data/processed.
