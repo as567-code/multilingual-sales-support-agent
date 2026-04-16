@@ -1,6 +1,6 @@
 # Multilingual Sales & Support Conversational AI Agent
 
-An end-to-end conversational AI agent for sales & customer support that answers user questions in **English, Spanish, and Hindi** over a curated domain FAQ corpus. Uses a three-agent pipeline (Retrieval → Reasoning → Safety) orchestrated via LangChain, with FAISS retrieval, OpenAI reasoning, and prompt-injection / PII guardrails.
+An end-to-end conversational AI agent for sales & customer support that answers user questions in **English, Spanish, and Hindi** over a curated domain FAQ corpus. Uses a three-agent pipeline (Retrieval → Reasoning → Safety) orchestrated via LangChain, with FAISS retrieval, Google Gemini reasoning, and prompt-injection / PII guardrails.
 
 ## Hero Metrics
 
@@ -26,7 +26,7 @@ Safety Agent (in)  ──▶  Prompt-Injection Guard + PII Redactor
       ↓
 Retrieval Agent    ──▶  FAISS index (multilingual-e5 embeddings)
       ↓
-Reasoning Agent    ──▶  OpenAI gpt-4o-mini (zero-shot + few-shot)
+Reasoning Agent    ──▶  Google Gemini 2.0 Flash (zero-shot + few-shot)
       ↓
 Safety Agent (out) ──▶  Factuality + PII re-scan
       ↓
@@ -38,7 +38,7 @@ Full write-up: [`docs/architecture.md`](docs/architecture.md).
 ## Quickstart
 
 ```bash
-cp .env.example .env              # fill OPENAI_API_KEY, HF_TOKEN
+cp .env.example .env              # fill GOOGLE_API_KEY, HF_TOKEN
 python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
