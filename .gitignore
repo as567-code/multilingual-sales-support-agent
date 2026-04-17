@@ -12,6 +12,7 @@ venv/
 .idea/
 .vscode/
 .DS_Store
+.claude/
 
 # Caches
 .pytest_cache/
