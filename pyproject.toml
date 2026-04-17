@@ -7,16 +7,16 @@ name = "multilingual-sales-support-agent"
 version = "0.1.0"
 description = "Multilingual (EN/ES/HI) sales & support conversational AI agent with 3-agent RAG pipeline."
 readme = "README.md"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "Aditya Srivastava" }]
 
 dependencies = [
   # Orchestration
   "langchain==0.3.7",
-  "langchain-google-genai==2.0.5",
+  "langchain-mistralai==0.2.4",
   "langchain-community==0.3.7",
-  "google-generativeai==0.8.3",
+  "mistralai==1.2.5",
   # Vector store + embeddings
   "faiss-cpu==1.9.0",
   "sentence-transformers==3.3.1",
@@ -64,7 +64,7 @@ packages = ["app", "ingest", "evals"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
