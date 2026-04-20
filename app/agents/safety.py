@@ -57,6 +57,19 @@ PII_ENTITIES: tuple[str, ...] = (
     "URL",
 )
 
+# Strings we intentionally emit in our own canonical templates — must not be
+# redacted even though they look like PII. Keep this list minimal: every entry
+# is a string that would otherwise be zapped out of a fixed abstention/refusal
+# message we wrote ourselves. If the LLM *happens* to emit the same string
+# from a retrieved FAQ, we still prefer not to redact it.
+ALLOWED_OUTBOUND_CONTACTS: tuple[str, ...] = (
+    "support@technova.com",
+    # Presidio's URL recognizer matches the bare domain inside the email span,
+    # so we allowlist it independently — otherwise "support@technova.com" has
+    # the email allowlisted but the domain still gets flagged as URL.
+    "technova.com",
+)
+
 # Canonical refusal messages for blocked input, in each supported language.
 _INJECTION_REFUSAL = {
     "en": "I can only answer TechNova product and support questions. Please rephrase your question.",
@@ -135,6 +148,10 @@ class SafetyAgent:
 
     def __post_init__(self) -> None:
         self.settings = self.settings or get_settings()
+        # Warm up Presidio's spaCy pipeline — cold start is ~10-12 s (model
+        # load from disk), which would blow the P95 latency budget on the
+        # first real request. Pay it once at construction time.
+        _analyzer().analyze(text="warmup", entities=list(self.entities), language="en")
 
     # -- input side --------------------------------------------------------
 
@@ -175,6 +192,7 @@ class SafetyAgent:
             text=text,
             entities=list(self.entities),
             language="en",
+            allow_list=list(ALLOWED_OUTBOUND_CONTACTS),
         )
         return [r for r in results if r.score >= self.pii_min_score]
 

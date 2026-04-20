@@ -201,6 +201,14 @@ def test_input_runnable_attack(safety):
 
 
 def test_output_runnable(safety):
-    r = safety.output_runnable().invoke(_make_answer("contact support@technova.com"))
+    # Use a non-allowlisted email so redaction actually fires.
+    r = safety.output_runnable().invoke(_make_answer("contact jane.doe@example.com"))
     assert isinstance(r, OutputSafetyResult)
-    assert "support@technova.com" not in r.redacted_answer
+    assert "jane.doe@example.com" not in r.redacted_answer
+    assert "<EMAIL_ADDRESS>" in r.redacted_answer
+
+
+def test_allowlisted_support_email_not_redacted(safety):
+    r = safety.check_output(_make_answer("Please contact support@technova.com for help."))
+    assert "support@technova.com" in r.redacted_answer
+    assert r.safe is True
