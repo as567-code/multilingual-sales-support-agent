@@ -1,0 +1,52 @@
+# Keep the build context small — these are either dev-only or regenerated
+# inside the image.
+
+# VCS / IDE / OS
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+.claude/
+.DS_Store
+**/.DS_Store
+
+# Python caches + venv
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Secrets — supplied at runtime via compose env_file
+.env
+*.pem
+*.key
+
+# Dev tooling
+docs/
+README.md
+LICENSE
+notebooks/
+
+# Test + eval corpora are not needed at runtime
+tests/
+evals/reports/
+
+# Local HF / torch caches — the image pre-populates its own
+.cache/
+models/
+~/.cache/huggingface
+
+# Docker artifacts
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Large raw corpora — only data/processed is shipped
+data/raw/
+data/interim/
