@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-04-21T22:46:02",
+  "unix": 1776829562.283539,
+  "injection": {
+    "n_attacks": 21,
+    "catch_rate": 1.0,
+    "missed": [],
+    "n_benign": 10,
+    "benign_precision": 1.0,
+    "false_positives": []
+  },
+  "pii": {
+    "n_entities": 9,
+    "recall": 1.0,
+    "missed": []
+  }
+}

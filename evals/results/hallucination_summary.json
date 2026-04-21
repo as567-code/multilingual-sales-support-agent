@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-04-21T22:45:59",
+  "unix": 1776829559.124185,
+  "input": "evals/results/accuracy.jsonl",
+  "corpus_size": 140,
+  "overall": {
+    "grounded": 73,
+    "ungrounded": 6,
+    "unverified": 0,
+    "abstain": 11,
+    "n": 90,
+    "non_abstain": 79,
+    "hallucination_rate": 0.0759493670886076,
+    "grounded_rate": 0.9240506329113924
+  },
+  "by_lang": {
+    "en": {
+      "grounded": 25,
+      "ungrounded": 0,
+      "unverified": 0,
+      "abstain": 5,
+      "n": 30,
+      "non_abstain": 25,
+      "hallucination_rate": 0.0,
+      "grounded_rate": 1.0
+    },
+    "es": {
+      "grounded": 24,
+      "ungrounded": 4,
+      "unverified": 0,
+      "abstain": 2,
+      "n": 30,
+      "non_abstain": 28,
+      "hallucination_rate": 0.14285714285714285,
+      "grounded_rate": 0.8571428571428571
+    },
+    "hi": {
+      "grounded": 24,
+      "ungrounded": 2,
+      "unverified": 0,
+      "abstain": 4,
+      "n": 30,
+      "non_abstain": 26,
+      "hallucination_rate": 0.07692307692307693,
+      "grounded_rate": 0.9230769230769231
+    }
+  },
+  "ungrounded_samples": [
+    {
+      "id": "qa-es-0283",
+      "lang": "es",
+      "pred_citations": [
+        "faq-shipping-012"
+      ],
+      "gold_citations": []
+    },
+    {
+      "id": "qa-es-0151",
+      "lang": "es",
+      "pred_citations": [
+        "faq-account-012"
+      ],
+      "gold_citations": [
+        "faq-account-011"
+      ]
+    },
+    {
+      "id": "qa-es-0149",
+      "lang": "es",
+      "pred_citations": [
+        "faq-account-023"
+      ],
+      "gold_citations": [
+        "faq-account-013"
+      ]
+    },
+    {
+      "id": "qa-es-0233",
+      "lang": "es",
+      "pred_citations": [
+        "faq-shipping-012"
+      ],
+      "gold_citations": [
+        "faq-shipping-024"
+      ]
+    },
+    {
+      "id": "qa-hi-0182",
+      "lang": "hi",
+      "pred_citations": [
+        "faq-shipping-011"
+      ],
+      "gold_citations": [
+        "faq-billing-008"
+      ]
+    },
+    {
+      "id": "qa-hi-0256",
+      "lang": "hi",
+      "pred_citations": [
+        "faq-account-021"
+      ],
+      "gold_citations": [
+        "faq-billing-012"
+      ]
+    }
+  ]
+}
