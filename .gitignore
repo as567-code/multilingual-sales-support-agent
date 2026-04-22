@@ -28,3 +28,7 @@ data/processed/*
 !data/processed/.gitkeep
 
 # Eval results are intentionally committed — they prove the resume claim.
+
+# Local debug artifacts from UI iteration
+.playwright-mcp/
+apple-*.png

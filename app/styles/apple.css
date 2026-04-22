@@ -1,0 +1,806 @@
+/* =========================================================================
+   Apple-style reskin for the Gradio UI.
+
+   Strategy:
+     1. All design decisions live as CSS custom properties on :root.
+     2. Component rules below reference *only* those tokens — never raw
+        hex/px values — so a single token edit updates everything.
+     3. We override Gradio by class name (`.gradio-container`, `.block`,
+        `.form`) and avoid the hashed `.svelte-XXXXX` selectors that
+        change between Gradio versions.
+
+   Design tokens follow Apple's marketing-site language: text #1d1d1f
+   (never pure black), accent #0071e3 used once per page, layered subtle
+   shadows, 400ms cubic-bezier(0.25, 0.1, 0.25, 1) easing, no font weights
+   above 600.
+   ======================================================================== */
+
+:root {
+  /* -- Color (light) ----------------------------------------------------- */
+  --bg-base:        #fbfbfd;
+  --bg-surface:     #ffffff;
+  --text-primary:   #1d1d1f;
+  --text-secondary: #515154;          /* tightened from spec #6e6e73 to keep AA contrast on small text */
+  --text-tertiary:  #6e6e73;          /* spec value, used only on >=18px or >=14px+semibold */
+  --border-hairline:#d2d2d7;
+  --accent:         #0071e3;
+  --accent-hover:   #0077ed;
+
+  /* Semantic status colors for the dot-style badges */
+  --status-info:    #0071e3;
+  --status-warn:    #b25000;
+  --status-danger:  #bf0711;
+  --status-ok:      #1f7a3d;
+
+  /* -- Typography -------------------------------------------------------- */
+  --font-stack: "SF Pro Display", "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:  ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --size-display: clamp(48px, 7vw, 96px);
+  --size-h1:      56px;
+  --size-h2:      40px;
+  --size-h3:      28px;
+  --size-body:    17px;
+  --size-meta:    14px;
+
+  --weight-regular:  400;
+  --weight-semibold: 600;             /* hard cap — no bolder token exists by design */
+
+  --tracking-display: -0.025em;
+  --tracking-h1:      -0.022em;
+  --tracking-h2:      -0.020em;
+  --tracking-h3:      -0.015em;
+  --tracking-body:    -0.003em;
+
+  --leading-display: 1.05;
+  --leading-heading: 1.10;
+  --leading-body:    1.47;
+
+  /* -- Spacing & layout -------------------------------------------------- */
+  --space-section-y: clamp(64px, 8vw, 120px);
+  --space-card:      40px;
+  --space-grid-gap:  24px;
+  --container-max:   1440px;
+  --container-pad:   44px;
+  --content-max:     980px;
+
+  /* -- Radii ------------------------------------------------------------- */
+  --r-pill:    980px;
+  --r-button:  12px;
+  --r-card-sm: 18px;
+  --r-card-lg: 28px;
+
+  /* -- Motion ------------------------------------------------------------ */
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --dur-hover:  400ms;
+  --dur-scroll: 600ms;
+  --scale-hover: 1.02;
+
+  /* -- Shadows (layered, never heavy) ----------------------------------- */
+  --shadow-rest:  0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.06), 0 24px 48px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark-mode tokens.
+   Two ways to land in dark:
+     1. User clicked the toggle → :root[data-theme="dark"]
+     2. No manual choice + OS is dark → :root:not([data-theme]) (matched
+        inside the media query below)
+   Explicit [data-theme="light"] stays light even if the OS prefers dark. */
+:root[data-theme="dark"],
+:root.theme-dark {
+  --bg-base:        #000000;
+  --bg-surface:     #1d1d1f;
+  --text-primary:   #f5f5f7;
+  --text-secondary: #c7c7cc;
+  --text-tertiary:  #86868b;
+  --border-hairline:#424245;
+  --shadow-rest:    0 1px 2px rgba(0, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.30);
+  --shadow-hover:   0 4px 8px rgba(0, 0, 0, 0.50), 0 24px 48px rgba(0, 0, 0, 0.40);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-base:        #000000;
+    --bg-surface:     #1d1d1f;
+    --text-primary:   #f5f5f7;
+    --text-secondary: #c7c7cc;
+    --text-tertiary:  #86868b;
+    --border-hairline:#424245;
+    --shadow-rest:    0 1px 2px rgba(0, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.30);
+    --shadow-hover:   0 4px 8px rgba(0, 0, 0, 0.50), 0 24px 48px rgba(0, 0, 0, 0.40);
+  }
+}
+
+/* =========================================================================
+   Global reset / typography
+   Background: solid base + two soft "aurora" orbs anchored to the viewport.
+   Each orb is a low-opacity radial gradient (≤8% alpha) — ambient color,
+   not decoration. Apple's recent landing pages use this technique to add
+   warmth without violating the no-rainbow rule.
+   ======================================================================== */
+
+html {
+  background: var(--bg-base) !important;
+}
+
+body {
+  background-color: #fbfbfd !important;
+  background-image:
+    radial-gradient(1100px circle at 88% -8%,   rgba(0, 113, 227, 0.38),  transparent 55%),
+    radial-gradient(1000px circle at -5% 110%,  rgba(255, 122, 70, 0.32), transparent 55%),
+    radial-gradient(900px  circle at 50% 65%,   rgba(94, 200, 156, 0.18), transparent 55%),
+    linear-gradient(180deg, #fbfbfd 0%, #eef0f4 100%) !important;
+  background-attachment: fixed, fixed, fixed, fixed !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-stack) !important;
+  font-size: var(--size-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The <gradio-app> web component is the actual Svelte mount root. It paints
+   solid white over the body by default and would hide the body's orbs.
+   Make it (and any chain wrapper) transparent so the body bg shows through. */
+gradio-app,
+gradio-app .main,
+gradio-app > .wrap,
+gradio-app > div {
+  background: transparent !important;
+}
+
+.gradio-container {
+  background: transparent !important;             /* let the body orbs show through */
+  color: var(--text-primary) !important;
+  font-family: var(--font-stack) !important;
+  max-width: var(--container-max) !important;
+  padding: var(--space-section-y) var(--container-pad) !important;
+  margin: 0 auto !important;
+}
+
+/* Dark-mode body — boost orb opacity since they sit on near-black */
+:root[data-theme="dark"] body,
+:root.theme-dark body {
+  background-color: #000000 !important;
+  background-image:
+    radial-gradient(1100px circle at 88% -8%,   rgba(10, 132, 255, 0.30),  transparent 55%),
+    radial-gradient(1000px circle at -5% 110%,  rgba(255, 110, 60, 0.22),  transparent 55%),
+    radial-gradient(900px  circle at 50% 65%,   rgba(94, 200, 156, 0.12),  transparent 55%),
+    linear-gradient(180deg, #000000 0%, #0a0a0c 100%) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) body {
+    background-color: #000000 !important;
+    background-image:
+      radial-gradient(1100px circle at 88% -8%,   rgba(10, 132, 255, 0.30),  transparent 55%),
+      radial-gradient(1000px circle at -5% 110%,  rgba(255, 110, 60, 0.22),  transparent 55%),
+      radial-gradient(900px  circle at 50% 65%,   rgba(94, 200, 156, 0.12),  transparent 55%),
+      linear-gradient(180deg, #000000 0%, #0a0a0c 100%) !important;
+  }
+}
+
+/* Headings — wired to the type scale, semibold cap */
+.gradio-container h1,
+.gradio-container .prose h1 {
+  font-size: var(--size-h1);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-h1);
+  line-height: var(--leading-heading);
+  color: var(--text-primary);
+  margin: 0 0 16px;
+}
+
+.gradio-container h2,
+.gradio-container .prose h2 {
+  font-size: var(--size-h2);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-h2);
+  line-height: var(--leading-heading);
+  color: var(--text-primary);
+}
+
+.gradio-container h3,
+.gradio-container .prose h3 {
+  font-size: var(--size-h3);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-h3);
+  color: var(--text-primary);
+}
+
+.gradio-container p,
+.gradio-container .prose p,
+.gradio-container li {
+  font-size: var(--size-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  color: var(--text-primary);
+}
+
+.gradio-container code,
+.gradio-container .prose code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+:root[data-theme="dark"] .gradio-container code,
+:root[data-theme="dark"] .gradio-container .prose code,
+:root.theme-dark .gradio-container code,
+:root.theme-dark .gradio-container .prose code {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .gradio-container code,
+  :root:not([data-theme]) .gradio-container .prose code {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Card section label — the meta-sized title above each tilt card's contents */
+.card-label {
+  font-size: var(--size-meta);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+}
+
+/* The hero block — display-scale H1 + 21px lead paragraph */
+.hero-block {
+  margin: 0 0 var(--space-section-y);
+}
+
+.hero-block h1 {
+  font-size: var(--size-display) !important;
+  font-weight: var(--weight-semibold) !important;
+  letter-spacing: var(--tracking-display) !important;
+  line-height: var(--leading-display) !important;
+  color: var(--text-primary) !important;
+  margin: 0 0 24px !important;
+  /* No gradient trick — Gradio's prose cascade aggressively resets
+     background-image, and Apple headlines are usually solid anyway. */
+}
+
+.hero-block p {
+  font-size: 21px !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.011em !important;
+  color: var(--text-secondary) !important;
+  max-width: 760px;
+  margin: 0 !important;
+}
+
+/* =========================================================================
+   Form controls — textbox, dropdown, button
+   ======================================================================== */
+
+.gradio-container .form,
+.gradio-container .block {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Input + dropdown — pill-ish, hairline border, focus ring uses accent */
+.gradio-container input[type="text"],
+.gradio-container textarea,
+.gradio-container .wrap input,
+.gradio-container .wrap textarea,
+.gradio-container select {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: var(--r-button) !important;
+  padding: 14px 16px !important;
+  font-family: var(--font-stack) !important;
+  font-size: var(--size-body) !important;
+  font-weight: var(--weight-regular) !important;
+  line-height: var(--leading-body) !important;
+  transition: border-color var(--dur-hover) var(--ease-apple),
+              box-shadow var(--dur-hover) var(--ease-apple);
+  box-shadow: none !important;
+}
+
+.gradio-container input[type="text"]:focus,
+.gradio-container textarea:focus,
+.gradio-container .wrap input:focus,
+.gradio-container .wrap textarea:focus,
+.gradio-container select:focus {
+  outline: none !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.18) !important;
+}
+
+/* Gradio wraps inputs in nested divs (`.container > .wrap > .wrap-inner > .secondary-wrap`).
+   The `.wrap` wrapper hardcodes a light-gray bg that doesn't honor our theme
+   tokens — kill it so the input itself (which does honor tokens) is the only
+   visible surface. */
+.gradio-container .container > .wrap,
+.gradio-container .wrap-inner,
+.gradio-container .secondary-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Labels — meta size, secondary color, light tracking */
+.gradio-container label,
+.gradio-container .label-wrap > span,
+.gradio-container .block-title {
+  font-size: var(--size-meta) !important;
+  font-weight: var(--weight-semibold) !important;
+  color: var(--text-secondary) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Primary button — the only accent-colored element on the page */
+.gradio-container button.primary,
+.gradio-container button[variant="primary"],
+.gradio-container .primary > button {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: var(--r-pill) !important;
+  padding: 14px 28px !important;
+  font-family: var(--font-stack) !important;
+  font-size: var(--size-body) !important;
+  font-weight: var(--weight-semibold) !important;
+  letter-spacing: -0.01em !important;
+  cursor: pointer;
+  transition: background var(--dur-hover) var(--ease-apple),
+              transform var(--dur-hover) var(--ease-apple),
+              box-shadow var(--dur-hover) var(--ease-apple);
+  box-shadow: 0 1px 2px rgba(0, 113, 227, 0.20);
+}
+
+.gradio-container button.primary:hover,
+.gradio-container button[variant="primary"]:hover,
+.gradio-container .primary > button:hover {
+  background: var(--accent-hover) !important;
+  transform: scale(var(--scale-hover));
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.28);
+}
+
+.gradio-container button.primary:active {
+  transform: scale(0.99);
+}
+
+/* Secondary buttons (Examples chips etc.) */
+.gradio-container button:not(.primary):not([variant="primary"]) {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-hairline) !important;
+  border-radius: var(--r-button) !important;
+  font-family: var(--font-stack) !important;
+  font-weight: var(--weight-regular) !important;
+  transition: border-color var(--dur-hover) var(--ease-apple),
+              transform var(--dur-hover) var(--ease-apple);
+}
+
+.gradio-container button:not(.primary):not([variant="primary"]):hover {
+  border-color: var(--text-primary) !important;
+}
+
+/* =========================================================================
+   Tilt cards — the 3D hover treatment
+   Applied to elements with elem_classes=["tilt-card"]
+   ======================================================================== */
+
+.tilt-card {
+  position: relative;
+  background: var(--bg-surface);
+  border-radius: var(--r-card-lg);
+  /* Spec rule: shadow OR border, never both. We chose shadow. */
+  border: none;
+  box-shadow: var(--shadow-rest);
+  padding: var(--space-card);
+  /* The tilt itself — JS sets --tilt-x / --tilt-y, CSS applies them. */
+  transform: perspective(1000px)
+             rotateX(var(--tilt-x, 0deg))
+             rotateY(var(--tilt-y, 0deg))
+             scale(var(--card-scale, 1));
+  transform-style: preserve-3d;
+  transition: transform var(--dur-hover) var(--ease-apple),
+              box-shadow var(--dur-hover) var(--ease-apple);
+  will-change: transform;
+  overflow: hidden;             /* clip the glare to the card radius */
+  isolation: isolate;
+}
+
+.tilt-card:hover {
+  --card-scale: 1.02;
+  box-shadow: var(--shadow-hover);
+}
+
+/* Glare layer — radial gradient anchored to the cursor via JS-set vars */
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255, 255, 255, var(--glare-opacity, 0)) 0%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  pointer-events: none;
+  transition: opacity var(--dur-hover) var(--ease-apple);
+  z-index: 2;
+}
+
+/* Inner pop — children flagged with .tilt-pop ride forward on Z when the
+   card tilts, giving the parallax depth. */
+.tilt-card .tilt-pop {
+  transform: translateZ(40px);
+}
+
+/* Cards inherit Gradio's nested `.block` / `.form` / `.styler` wrappers —
+   kill their default backgrounds so only the card surface shows. The
+   `.styler` div in particular paints a gray box behind heading-only
+   markdown blocks, which we want gone. */
+.tilt-card .block,
+.tilt-card .form,
+.tilt-card .styler,
+.tilt-card .gr-group,
+.tilt-card .markdown,
+.tilt-card .prose {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Re-add internal vertical rhythm between stacked elements inside a card */
+.tilt-card > * + * { margin-top: 16px; }
+
+/* Internal markdown spacing inside cards */
+.tilt-card .prose > *:first-child { margin-top: 0; }
+.tilt-card .prose > *:last-child  { margin-bottom: 0; }
+
+/* Reduced motion: kill tilt + glare entirely */
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card,
+  .tilt-card:hover {
+    transform: none !important;
+    transition: box-shadow var(--dur-hover) var(--ease-apple);
+  }
+  .tilt-card::after { display: none; }
+  .tilt-card .tilt-pop { transform: none; }
+}
+
+/* =========================================================================
+   Status badges — replacing 🛑 ⚠️ 🔒 emoji per anti-pattern rules.
+   Rendered as inline markdown with raw HTML spans from app/ui.py.
+   ======================================================================== */
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  font-size: var(--size-meta);
+  color: var(--text-secondary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--size-meta);
+  font-weight: var(--weight-regular);
+  color: var(--text-primary);
+}
+
+.badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-info);
+  display: inline-block;
+  flex: none;
+}
+
+.badge--danger { color: var(--status-danger); font-weight: var(--weight-semibold); }
+.badge--danger .dot { background: var(--status-danger); }
+
+.badge--warn   { color: var(--status-warn);   font-weight: var(--weight-semibold); }
+.badge--warn   .dot { background: var(--status-warn); }
+
+.badge--ok     { color: var(--status-ok); }
+.badge--ok     .dot { background: var(--status-ok); }
+
+.badge code {
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: var(--size-meta);
+  color: var(--text-primary);
+}
+
+/* =========================================================================
+   Accordions — flat, hairline divider, no chunky chrome
+   ======================================================================== */
+
+.tilt-card .accordion,
+.gradio-container .accordion {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.gradio-container .accordion > .label-wrap {
+  border-top: 1px solid var(--border-hairline);
+  padding: 16px 0 !important;
+  font-size: var(--size-meta) !important;
+  font-weight: var(--weight-semibold) !important;
+  color: var(--text-secondary) !important;
+}
+
+.gradio-container .accordion > .label-wrap:first-child {
+  border-top: none;
+}
+
+/* =========================================================================
+   Tables (latency table) — minimal, hairline rules, mono numerics
+   ======================================================================== */
+
+.tilt-card table,
+.gradio-container .prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--size-meta);
+}
+
+.tilt-card th,
+.tilt-card td,
+.gradio-container .prose th,
+.gradio-container .prose td {
+  text-align: left;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+}
+
+.tilt-card th,
+.gradio-container .prose th {
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  font-size: var(--size-meta);
+}
+
+.tilt-card td:last-child,
+.tilt-card th:last-child,
+.gradio-container .prose td:last-child,
+.gradio-container .prose th:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+/* =========================================================================
+   Examples — Gradio emits a <table> wrapped in `.table-wrap` with
+   `.tr-head` / `.tr-body` rows and `.textbox` cells. Real selectors,
+   not the imagined `.examples` class.
+   ======================================================================== */
+
+.gradio-container .table-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: var(--r-card-sm) !important;
+  overflow: hidden;
+}
+
+.gradio-container .table-wrap table {
+  border: none !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+  font-family: var(--font-stack) !important;
+}
+
+.gradio-container .tr-head {
+  display: none !important;          /* hide "Your question | Language hint" header */
+}
+
+.gradio-container .tr-body {
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-hairline) !important;
+  cursor: pointer;
+  transition: background-color var(--dur-hover) var(--ease-apple),
+              transform var(--dur-hover) var(--ease-apple);
+}
+
+.gradio-container .tr-body:last-child {
+  border-bottom: none !important;
+}
+
+.gradio-container .tr-body:hover {
+  background: rgba(0, 113, 227, 0.04) !important;
+}
+
+.gradio-container .tr-body td.textbox {
+  padding: 14px 18px !important;
+  font-size: var(--size-meta) !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  border-right: 1px solid var(--border-hairline) !important;
+  background: transparent !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+}
+
+.gradio-container .tr-body td.textbox:last-child {
+  border-right: none !important;
+  color: var(--text-secondary) !important;
+  width: 140px;
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-theme="dark"] .gradio-container .tr-body:hover,
+:root.theme-dark .gradio-container .tr-body:hover {
+  background: rgba(10, 132, 255, 0.10) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .gradio-container .tr-body:hover {
+    background: rgba(10, 132, 255, 0.10) !important;
+  }
+}
+
+/* The "Try one" label — Gradio emits as a markdown label above the table */
+.gradio-container .label-wrap > .table-wrap-button,
+.gradio-container .table-wrap-button,
+.gradio-container .label-wrap.svelte-1ed2p3z {
+  font-size: var(--size-meta) !important;
+  font-weight: var(--weight-semibold) !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Wrap the whole examples block in a soft surface so it reads as a card */
+.gradio-container .table-wrap {
+  border: 1px solid var(--border-hairline) !important;
+  margin-top: 24px;
+}
+
+/* =========================================================================
+   Gradio footer — quietly hide the "Use via API · Built with Gradio"
+   chrome (rocket emoji + Gradio "G" emoji violate the no-chrome-emoji rule)
+   ======================================================================== */
+
+.gradio-container footer { display: none !important; }
+
+/* =========================================================================
+   Footer Gradio branding — quiet it down
+   ======================================================================== */
+
+.gradio-container footer {
+  color: var(--text-tertiary) !important;
+  font-size: var(--size-meta) !important;
+  border-top: 1px solid var(--border-hairline);
+  margin-top: var(--space-section-y);
+  padding-top: 24px;
+}
+
+/* =========================================================================
+   Scroll-reveal: section + card entry animation.
+   JS adds .is-visible when an element enters the viewport.
+   ======================================================================== */
+
+/* Use the `translate` individual transform property (not the `transform`
+   shorthand) so .reveal can coexist with .tilt-card's perspective+rotate
+   transform — they compose at the rendering layer instead of fighting
+   in the cascade. */
+.reveal {
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity var(--dur-scroll) var(--ease-apple),
+              translate var(--dur-scroll) var(--ease-apple);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    translate: 0;
+    transition: none;
+  }
+}
+
+/* =========================================================================
+   Theme toggle — fixed top-right, sun/moon icon swap
+   The button is injected by apple.js so the Python code stays clean.
+   ======================================================================== */
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-pill);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-rest);
+  transition: background-color var(--dur-hover) var(--ease-apple),
+              border-color var(--dur-hover) var(--ease-apple),
+              transform var(--dur-hover) var(--ease-apple),
+              box-shadow var(--dur-hover) var(--ease-apple);
+  /* Center the icon visually */
+  padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.theme-toggle:hover {
+  border-color: var(--text-primary);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
+}
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.30);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  transition: opacity var(--dur-hover) var(--ease-apple),
+              transform var(--dur-hover) var(--ease-apple);
+}
+
+/* Show the moon in light mode (click to go dark), sun in dark mode (click to go light) */
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+
+:root[data-theme="dark"] .theme-toggle .icon-sun,
+:root.theme-dark         .theme-toggle .icon-sun  { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-moon,
+:root.theme-dark         .theme-toggle .icon-moon { display: none; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-toggle .icon-sun  { display: block; }
+  :root:not([data-theme]) .theme-toggle .icon-moon { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle:hover { transform: none; }
+}
+
+/* Theme transition smoothing — when toggling, fade the swap so it doesn't
+   flash. We add .theme-transitioning briefly during a click. */
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning .tilt-card,
+html.theme-transitioning input,
+html.theme-transitioning textarea,
+html.theme-transitioning select,
+html.theme-transitioning button {
+  transition: background-color var(--dur-hover) var(--ease-apple),
+              color var(--dur-hover) var(--ease-apple),
+              border-color var(--dur-hover) var(--ease-apple) !important;
+}
