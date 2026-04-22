@@ -61,7 +61,7 @@ app/
   chains/        orchestrator.py
   prompts/       reasoning_zero_shot.yaml  reasoning_few_shot.yaml
   utils/         language.py  logging.py  mistral_client.py  injection_patterns.py
-  config.py  main.py
+  config.py  main.py  ui.py
 ingest/          chunking.py  build_faiss.py  generate_faqs.py  translate_faqs.py  ...
 evals/
   harness.py
@@ -91,6 +91,20 @@ python -m ingest.build_faiss
 uvicorn app.main:app --reload
 # → open http://localhost:8000/docs for the OpenAPI UI
 ```
+
+## Demo UI
+
+A Gradio interface ships in `app/ui.py` for quick interactive demos:
+
+```bash
+pip install '.[ui]'
+python -m app.ui
+# → open http://localhost:7860
+```
+
+Same orchestrator as the API — language-hint dropdown, FAQ
+citations, status badges (injection / abstain / PII), and a per-stage
+latency table. Set `GRADIO_SHARE=1` to expose a public tunnel.
 
 ## Running via Docker
 

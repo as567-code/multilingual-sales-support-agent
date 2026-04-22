@@ -58,6 +58,7 @@ llamaindex = ["llama-index==0.12.3", "llama-index-embeddings-huggingface==0.4.0"
 haystack   = ["haystack-ai==2.8.0"]
 txtai      = ["txtai==8.1.0"]
 ragatouille = ["ragatouille==0.0.9b1"]
+ui          = ["gradio==5.7.1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["app", "ingest", "evals"]
