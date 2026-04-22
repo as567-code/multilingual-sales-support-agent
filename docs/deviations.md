@@ -7,6 +7,7 @@ Tracks intentional deviations from `PRD_multilingual_sales_support_agent.md`. Ev
 | 2026-04-21 | Reasoning LLM swapped from OpenAI `gpt-4o-mini` → Google `gemini-2.0-flash` (reverted same day) | Free-tier coverage for Stage 9 + Stage 10 eval budget. | Reverted: the supplied Google API key had `free_tier limit=0` quota (Cloud Console key, not AI Studio), so no requests succeeded. |
 | 2026-04-21 | Reasoning LLM swapped to Mistral `mistral-small-latest` (current) | Free tier on Mistral la Plateforme covers the eval budget; multilingual smoke test passed for EN/ES/HI including proper Devanagari Hindi. | `pyproject.toml` uses `langchain-mistralai` + `mistralai`; env var `MISTRAL_API_KEY`. Resume bullet reads "Mistral Small via Mistral la Plateforme" in place of "OpenAI gpt-4o-mini". |
 | 2026-04-21 | Python pin loosened from `>=3.11,<3.12` → `>=3.11,<3.13` | Host machine (macOS) has 3.12 via Homebrew, no 3.11; all pinned deps are 3.12-compatible. | Ruff `target-version` bumped to `py312`. No runtime impact. |
+| 2026-04-21 | `pydantic` 2.10.2 → 2.13.3, `tenacity` 9.0.0 → 8.5.0 (transitive, via `pip install '.[llamaindex]'`) | LlamaIndex 0.12.3's dep graph pins different minors. | Left in place — full test suite (77 passed, 4 skipped) stayed green. `pyproject.toml` still pins 2.10.2 / 9.0.0 as the *floor* for the non-llamaindex install. |
 
 ## Stack after deviations (current)
 

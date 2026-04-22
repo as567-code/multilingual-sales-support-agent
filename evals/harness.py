@@ -21,13 +21,13 @@ from __future__ import annotations
 import json
 import random
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from statistics import mean
 from typing import Iterable, Iterator
 
-from app.agents.reasoning import ReasoningAgent, ReasoningAnswer
-from app.agents.retrieval import RetrievalAgent, RetrievalResult
+from app.agents.reasoning import ReasoningAgent
+from app.agents.retrieval import RetrievalAgent
 from app.agents.safety import SafetyAgent
 from app.chains.orchestrator import AssistantResponse, SupportOrchestrator
 from app.utils.logging import get_logger

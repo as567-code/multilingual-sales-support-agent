@@ -24,7 +24,7 @@ Exposed as LCEL Runnables via ``input_runnable()`` and ``output_runnable()``.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Iterable
 
@@ -36,7 +36,7 @@ from pydantic import BaseModel, Field
 
 from app.agents.reasoning import ReasoningAnswer
 from app.config import Settings, get_settings
-from app.utils.injection_patterns import InjectionMatch, scan
+from app.utils.injection_patterns import scan
 from app.utils.logging import get_logger
 
 log = get_logger("safety")

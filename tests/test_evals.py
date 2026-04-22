@@ -19,7 +19,6 @@ from pathlib import Path
 import pytest
 
 from evals.harness import (
-    GoldSample,
     citation_prf,
     load_gold,
     stratified_sample,
@@ -89,7 +88,7 @@ def test_accuracy_runner_offline(tmp_path):
     )
     assert jsonl.exists() and summary_path.exists()
 
-    records = [json.loads(l) for l in jsonl.read_text().splitlines()]
+    records = [json.loads(line) for line in jsonl.read_text().splitlines()]
     assert len(records) == 6  # 2 per lang * 3 langs
     assert {r["lang"] for r in records} == {"en", "es", "hi"}
 

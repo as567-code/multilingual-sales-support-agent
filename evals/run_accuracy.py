@@ -31,7 +31,6 @@ from pathlib import Path
 from app.chains.orchestrator import SupportOrchestrator
 from app.utils.logging import configure_logging, get_logger
 from evals.harness import (
-    GoldSample,
     QueryRecord,
     citation_prf,
     ensure_results_dir,
