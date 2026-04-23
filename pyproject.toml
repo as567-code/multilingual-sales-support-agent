@@ -9,7 +9,7 @@ description = "Multilingual (EN/ES/HI) sales & support conversational AI agent w
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
-authors = [{ name = "Aditya Srivastava" }]
+authors = [{ name = "Aditya Swaroop" }]
 
 dependencies = [
   # Orchestration
